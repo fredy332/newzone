@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUST Venue Reservation System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>MUST Venue Reservation System</h1>
+        <!-- Login Form -->
+        <div id="loginForm">
+            <h2>Login</h2>
+            <form id="loginFormElement" onsubmit="event.preventDefault(); login();">
+                <div class="form-group">
+                    <label for="loginId">Lecturer ID</label>
+                    <input type="text" id="loginId" required placeholder="e.g., LEC001">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="rememberMe"> Remember Me</label>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <p>Not registered? <a href="#" onclick="showRegister()">Register here</a></p>
+            <div id="loginError" class="error"></div>
+        </div>
+        <!-- Registration Form -->
+        <div id="registerForm" style="display: none;">
+            <h2>Register</h2>
+            <form id="registerFormElement" onsubmit="event.preventDefault(); register();">
+                <div class="form-group">
+                    <label for="regTitle">Title</label>
+                    <select id="regTitle" required>
+                        <option value="">Select Title</option>
+                        <option value="Mr.">Mr.</option>
+                        <option value="Ms.">Ms.</option>
+                        <option value="Dr.">Dr.</option>
+                        <option value="Prof.">Prof.</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="regName">Name</label>
+                    <input type="text" id="regName" required placeholder="e.g., John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="idnumber">Lecturer ID</label>
+                    <input type="text" id="idnumber" required placeholder="e.g., LEC001">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" required placeholder="e.g., john.doe@must.edu">
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Phone Number</label>
+                    <input type="tel" id="regPhone" required pattern="[0-9]{10}" placeholder="e.g., 0712345678">
+                    <small>Enter a 10-digit phone number.</small>
+                </div>
+                <div class="form-group">
+                    <label for="regDepartment">Department</label>
+                    <input type="text" id="regDepartment" required placeholder="e.g., Computer Science">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" required>
+                    <small>Password must be at least 8 characters, with uppercase, lowercase, number, and special character.</small>
+                </div>
+                <button type="submit" id="registerButton">Register</button>
+            </form>
+            <p>Already registered? <a href="#" onclick="showLogin()">Login here</a></p>
+            <div id="regError" class="error"></div>
+            <div id="regSuccess" class="success"></div>
+        </div>
+        <!-- Dashboard -->
+        <div id="dashboard" style="display: none;">
+            <h2>Dashboard</h2>
+            <div id="welcomeMessage"></div>
+            <h3>Your Bookings</h3>
+            <div class="form-group">
+                <label for="bookingFilter">Filter Bookings</label>
+                <select id="bookingFilter" onchange="loadDashboard()">
+                    <option value="all">All Bookings</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="past">Past</option>
+                </select>
+            </div>
+            <table id="bookingTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortBookings('venue_name')">Venue</th>
+                        <th onclick="sortBookings('block')">Block</th>
+                        <th onclick="sortBookings('date')">Date</th>
+                        <th onclick="sortBookings('time_interval')">Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingList"></tbody>
+            </table>
+            <button onclick="showBooking()">Book a Venue</button>
+            <button onclick="showAdminPanel()" id="adminButton" style="display: none;">Admin Panel</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+        <!-- Admin Panel -->
+        <div id="adminPanel" style="display: none;">
+            <h2>Admin Panel</h2>
+            <h3>Lecturers</h3>
+            <table id="lecturerTable">
+                <thead>
+                    <tr>
+                        <th>Lecturer ID</th>
+                        <th>Title</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+                <tbody id="lecturerList"></tbody>
+            </table>
+            <h3>All Bookings</h3>
+            <table id="allBookingsTable">
+                <thead>
+                    <tr>
+                        <th>Venue</th>
+                        <th>Lecturer</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="allBookingsList"></tbody>
+            </table>
+            <button onclick="showDashboard()">Back to Dashboard</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+        <!-- Booking Form -->
+        <div id="bookingForm" style="display: none;">
+            <h2>Book a Venue</h2>
+            <div class="form-group">
+                <label for="block">Block</label>
+                <select id="block" onchange="loadVenues()">
+                    <option value="">Select Block</option>
+                    <option value="A">Block A (101-201)</option>
+                    <option value="B">Block B (10-101)</option>
+                    <option value="C">Block C (30-50)</option>
+                    <option value="Library">Library</option>
+                    <option value="ComputerLab">Computer Lab (1-20)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="venue">Venue</label>
+                <select id="venue">
+                    <option value="">Select Venue</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" required>
+            </div>
+            Dibert class="form-group">
+                <label for="timeInterval">Time Interval</label>
+                <select id="timeInterval" required>
+                    <option value="">Select Time Interval</option>
+                    <option value="08:00-10:00">08:00-10:00</option>
+                    <option value="10:00-12:00">10:00-12:00</option>
+                    <option value="12:00-14:00">12:00-14:00</option>
+                    <option value="14:00-16:00">14:00-16:00</option>
+                    <option value="16:00-18:00">16:00-18:00</option>
+                </select>
+            </div>
+            <button onclick="bookVenue()">Book Venue</button>
+            <button onclick="showDashboard()">Back to Dashboard</button>
+            <button onclick="logout()">Logout</button>
+            <div id="bookingError" class="error"></div>
+            <div id="bookingSuccess" class="success"></div>
+        </div>
+        <!-- Edit Booking Form -->
+        <div id="editBookingForm" style="display: none;">
+            <h2>Edit Booking</h2>
+            <input type="hidden" id="editBookingId">
+            <div class="form-group">
+                <label for="editBlock">Block</label>
+                <select id="editBlock" onchange="loadEditVenues()">
+                    <option value="">Select Block</option>
+                    <option value="A">Block A (101-201)</option>
+                    <option value="B">Block B (10-101)</option>
+                    <option value="C">Block C (30-50)</option>
+                    <option value="Library">Library</option>
+                    <option value="ComputerLab">Computer Lab (1-20)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editVenue">Venue</label>
+                <select id="editVenue">
+                    <option value="">Select Venue</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editDate">Date</label>
+                <input type="date" id="editDate" required>
+            </div>
+            <div class="form-group">
+                <label for="editTimeInterval">Time Interval</label>
+                <select id="editTimeInterval" required>
+                    <option value="">Select Time Interval</option>
+                    <option value="08:00-10:00">08:00-10:00</option>
+                    <option value="10:00-12:00">10:00-12:00</option>
+                    <option value="12:00-14:00">12:00-14:00</option>
+                    <option value="14:00-16:00">14:00-16:00</option>
+                    <option value="16:00-18:00">16:00-18:00</option>
+                </select>
+            </div>
+            <button onclick="updateBooking()">Update Booking</button>
+            <button onclick="showDashboard()">Cancel</button>
+            <div id="editBookingError" class="error"></div>
+            <div id="editBookingSuccess" class="success"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

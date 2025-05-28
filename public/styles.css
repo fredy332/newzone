@@ -1,0 +1,220 @@
+/* Reset default styles for consistency */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base styles */
+body {
+    font-family: Arial, sans-serif; /* Direct system font stack */
+    background-color: #f5f5f5; /* Light gray background */
+    color: #333333; /* Dark gray text */
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* Container for centering and max width */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff; /* White card background */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+h1 {
+    color: #800000; /* Maroon for main title */
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+h2 {
+    color: #800000; /* Maroon for section headers */
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+h3 {
+    color: #333333;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+}
+
+/* Form group styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #800000; /* Maroon border */
+    border-radius: 5px;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #ffd700; /* Gold on focus */
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.form-group small {
+    color: #666666;
+    font-size: 0.85em;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Checkbox styling */
+.form-group label input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+/* Buttons */
+button {
+    background-color: #800000; /* Maroon background */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #ffd700; /* Gold on hover */
+    color: #800000;
+    transform: scale(1.05);
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #800000; /* Maroon header */
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+th:hover {
+    background-color: #660000; /* Darker maroon on hover */
+}
+
+td {
+    background-color: #ffffff;
+}
+
+tr:hover {
+    background-color: #f5f5f5; /* Light gray on row hover */
+}
+
+/* Error and success messages */
+.error {
+    color: #e57373; /* Soft red for errors */
+    font-size: 0.9em;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+.success {
+    color: #ffd700; /* Gold for success */
+    font-size: 0.9em;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+/* Links */
+a {
+    color: #800000; /* Maroon links */
+    text-decoration: none;
+    font-weight: 600;
+}
+
+a:hover {
+    color: #ffd700; /* Gold on hover */
+    text-decoration: underline;
+}
+
+/* Welcome message */
+#welcomeMessage {
+    color: #333333;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    h2 {
+        font-size: 1.5em;
+    }
+
+    button {
+        width: 100%;
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+
+    table {
+        font-size: 0.9em;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.2em;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: 0.9em;
+    }
+}
