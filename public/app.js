@@ -58,12 +58,14 @@ async function login() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, password }),
         });
-        console.log('Login response status:', response.status);
+        console.log('Login response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Login error response:', data);
             throw new Error(data.message || 'Login failed');
         }
         const data = await response.json();
+        console.log('Login success:', data);
         currentUser = data.user;
         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
         if (rememberMe) {
@@ -73,8 +75,8 @@ async function login() {
         }
         showDashboard();
     } catch (error) {
-        console.error('Login error:', error.message);
-        document.getElementById('loginError').textContent = error.message || 'Invalid Lecturer ID or password';
+        console.error('Login fetch error:', error.message, error.stack);
+        document.getElementById('loginError').textContent = error.message || 'Failed to connect to server';
     }
 }
 
@@ -120,9 +122,10 @@ async function register() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, name, id: idNumber, email, phone, department, password }),
         });
-        console.log('Registration response status:', response.status);
+        console.log('Registration response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Registration error response:', data);
             throw new Error(data.message || 'Registration failed');
         }
         const data = await response.json();
@@ -134,7 +137,7 @@ async function register() {
             document.getElementById('regSuccess').textContent = '';
         }, 2000);
     } catch (error) {
-        console.error('Registration error:', error.message);
+        console.error('Registration fetch error:', error.message, error.stack);
         document.getElementById('regError').textContent = error.message || 'Registration failed. Please try again.';
     } finally {
         registerButton.disabled = false;
@@ -160,14 +163,17 @@ async function loadDashboard() {
         const response = await fetch(`${API_BASE_URL}/bookings?filter=${filter}`, {
             headers: { 'Authorization': `Bearer ${currentUser.id}` },
         });
+        console.log('Bookings response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Bookings error response:', data);
             throw new Error(data.message || 'Failed to fetch bookings');
         }
         const data = await response.json();
+        console.log('Bookings fetched:', data);
         displayBookings(data.bookings);
     } catch (error) {
-        console.error('Error fetching bookings:', error.message);
+        console.error('Bookings fetch error:', error.message, error.stack);
         alert('Failed to load bookings. Please try again.');
     }
 }
@@ -251,11 +257,14 @@ async function loadVenues() {
     if (!block) return;
     try {
         const response = await fetch(`${API_BASE_URL}/venues?block=${block}`);
+        console.log('Venues response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Venues error response:', data);
             throw new Error(data.message || 'Failed to fetch venues');
         }
         const data = await response.json();
+        console.log('Venues fetched:', data);
         const venueSelect = document.getElementById('venue');
         venueSelect.innerHTML = '<option value="">Select Venue</option>';
         data.venues.forEach((venue) => {
@@ -265,7 +274,7 @@ async function loadVenues() {
             venueSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error loading venues:', error.message);
+        console.error('Venues fetch error:', error.message, error.stack);
         alert('Failed to load venues. Please try again.');
     }
 }
@@ -275,11 +284,14 @@ async function loadEditVenues() {
     if (!block) return;
     try {
         const response = await fetch(`${API_BASE_URL}/venues?block=${block}`);
+        console.log('Edit venues response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Edit venues error response:', data);
             throw new Error(data.message || 'Failed to fetch venues');
         }
         const data = await response.json();
+        console.log('Edit venues fetched:', data);
         const venueSelect = document.getElementById('editVenue');
         venueSelect.innerHTML = '<option value="">Select Venue</option>';
         data.venues.forEach((venue) => {
@@ -289,7 +301,7 @@ async function loadEditVenues() {
             venueSelect.appendChild(option);
         });
     } catch (error) {
-        console.error('Error loading venues:', error.message);
+        console.error('Edit venues fetch error:', error.message, error.stack);
         alert('Failed to load venues. Please try again.');
     }
 }
@@ -313,8 +325,10 @@ async function bookVenue() {
             },
             body: JSON.stringify({ venue_id: venueId, date, time_interval: timeInterval }),
         });
+        console.log('Booking response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Booking error response:', data);
             throw new Error(data.message || 'Booking failed');
         }
         document.getElementById('bookingSuccess').textContent = 'Booking created successfully';
@@ -322,7 +336,7 @@ async function bookVenue() {
             showDashboard();
         }, 2000);
     } catch (error) {
-        console.error('Error creating booking:', error.message);
+        console.error('Booking fetch error:', error.message, error.stack);
         document.getElementById('bookingError').textContent = error.message || 'Booking failed. Please try again.';
     }
 }
@@ -332,11 +346,14 @@ async function editBooking(id) {
         const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
             headers: { 'Authorization': `Bearer ${currentUser.id}` },
         });
+        console.log('Edit booking response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Edit booking error response:', data);
             throw new Error(data.message || 'Failed to fetch booking');
         }
         const data = await response.json();
+        console.log('Edit booking fetched:', data);
         const booking = data.booking;
         document.getElementById('editBookingId').value = booking.id;
         document.getElementById('editBlock').value = booking.block;
@@ -349,7 +366,7 @@ async function editBooking(id) {
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('editBookingForm').style.display = 'block';
     } catch (error) {
-        console.error('Error fetching booking:', error.message);
+        console.error('Edit booking fetch error:', error.message, error.stack);
         alert('Failed to load booking. Please try again.');
     }
 }
@@ -374,8 +391,10 @@ async function updateBooking() {
             },
             body: JSON.stringify({ venue_id: venueId, date, time_interval: timeInterval }),
         });
+        console.log('Update booking response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Update booking error response:', data);
             throw new Error(data.message || 'Failed to update booking');
         }
         document.getElementById('editBookingSuccess').textContent = 'Booking updated successfully';
@@ -383,7 +402,7 @@ async function updateBooking() {
             showDashboard();
         }, 2000);
     } catch (error) {
-        console.error('Error updating booking:', error.message);
+        console.error('Update booking fetch error:', error.message, error.stack);
         document.getElementById('editBookingError').textContent = error.message || 'Failed to update booking. Please try again.';
     }
 }
@@ -395,14 +414,16 @@ async function cancelBooking(id) {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${currentUser.id}` },
         });
+        console.log('Cancel booking response:', response.status, response.statusText);
         if (!response.ok) {
             const data = await response.json();
+            console.error('Cancel booking error response:', data);
             throw new Error(data.message || 'Failed to delete booking');
         }
         alert('Booking deleted successfully!');
         loadDashboard();
     } catch (error) {
-        console.error('Error deleting booking:', error.message);
+        console.error('Cancel booking fetch error:', error.message, error.stack);
         alert('Failed to delete booking. Please try again.');
     }
 }
@@ -418,11 +439,14 @@ async function loadAdminPanel() {
         const lecturerResponse = await fetch(`${API_BASE_URL}/lecturers`, {
             headers: { 'Authorization': `Bearer ${currentUser.id}` },
         });
+        console.log('Lecturers response:', lecturerResponse.status, lecturerResponse.statusText);
         if (!lecturerResponse.ok) {
             const data = await lecturerResponse.json();
+            console.error('Lecturers error response:', data);
             throw new Error(data.message || 'Failed to fetch lecturers');
         }
         const lecturerData = await lecturerResponse.json();
+        console.log('Lecturers fetched:', lecturerData);
         const lecturerList = document.getElementById('lecturerList');
         lecturerList.innerHTML = '';
         lecturerData.lecturers.forEach(lecturer => {
@@ -442,11 +466,14 @@ async function loadAdminPanel() {
         const bookingsResponse = await fetch(`${API_BASE_URL}/bookings/all`, {
             headers: { 'Authorization': `Bearer ${currentUser.id}` },
         });
+        console.log('All bookings response:', bookingsResponse.status, bookingsResponse.statusText);
         if (!bookingsResponse.ok) {
             const data = await bookingsResponse.json();
+            console.error('All bookings error response:', data);
             throw new Error(data.message || 'Failed to fetch bookings');
         }
         const bookingsData = await bookingsResponse.json();
+        console.log('All bookings fetched:', bookingsData);
         const allBookingsList = document.getElementById('allBookingsList');
         allBookingsList.innerHTML = '';
         bookingsData.bookings.forEach(booking => {
@@ -460,7 +487,7 @@ async function loadAdminPanel() {
             allBookingsList.appendChild(row);
         });
     } catch (error) {
-        console.error('Error loading admin panel:', error.message);
+        console.error('Admin panel fetch error:', error.message, error.stack);
         alert('Failed to load admin panel. Please try again.');
     }
 }

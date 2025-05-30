@@ -13,14 +13,10 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({
-    origin: ['http://localhost:3000'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(cors()); // Relaxed CORS for testing; revert to specific origins in production
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(''));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection configuration
 const dbConfig = {
@@ -48,7 +44,7 @@ async function testDatabaseConnection() {
     }
 }
 
-// Initialize database (optional, if not using schema_updates.sql)
+// Initialize database
 async function initializeDatabase() {
     const connection = await pool.getConnection();
     try {
@@ -173,7 +169,7 @@ function requireAdmin(req, res, next) {
 
 // Login endpoint
 app.post('/api/login', async (req, res) => {
-    console.log('Login request:', req.body.id });
+    console.log('Login request:', req.body.id);
     const { id, password } = req.body;
     if (!id || !password) {
         console.error('Missing ID or password');
@@ -181,7 +177,7 @@ app.post('/api/login', async (req, res) => {
     }
     try {
         const [users] = await pool.query('SELECT * FROM lecturers WHERE id = ?', [id]);
-        if (users.length) {
+        if (users.length === 0) {
             console.error('Invalid lecturer ID:', id);
             return res.status(401).json({ message: 'Invalid lecturer ID or password' });
         }
@@ -259,19 +255,27 @@ app.get('/api/bookings', authenticateUser, async (req, res) => {
     const { filter } = req.query;
     const lecturerId = req.user.id;
     try {
-        let query = `
+        // Base query
+        let conditions = ['b.lecturer_id = ?'];
+        const params = [lecturerId];
+
+        if (filter === 'upcoming') {
+            conditions.push('(b.date > CURDATE() OR (b.date = CURDATE() AND SUBSTRING_INDEX(b.time_interval, "-", -1) > DATE_FORMAT(NOW(), "%H:%i"))');
+        } else if (filter === 'past') {
+            conditions.push('(b.date < CURDATE() OR (b.date = CURDATE() AND SUBSTRING_INDEX(b.time_interval, "-", -1) <= DATE_FORMAT(NOW(), "%H:%i"))');
+        }
+
+        // Construct query
+        const query = `
             SELECT b.*, v.name as venue_name, v.block
             FROM bookings b
             JOIN venues v ON b.venue_id = v.id
-            WHERE b.lecturer_id = ?
+            WHERE ${conditions.join(' AND ')}
+            ORDER BY b.date, b.time_interval
         `;
-        const params = [lecturerId];
-        if (filter === 'upcoming') {
-            query += ' AND (b.date > CURDATE() OR (b.date = CURDATE() AND SUBSTRING_INDEX(b.time_interval, "-", -1) > TIME_FORMAT(NOW(), "%H:%M"))';
-        } else if (filter === 'past') {
-            query += ' AND (b.date < CURDATE() OR (b.date = CURDATE() AND SUBSTRING_INDEX(b.time_interval, "-", -1) <= TIME_FORMAT(NOW(), "%H:%M"))';
-        }
-        query += ' ORDER BY b.date, b.time_interval';
+        console.log('Executing query:', query);
+        console.log('With params:', params);
+
         const [bookings] = await pool.query(query, params);
         res.json({ bookings });
     } catch (error) {
@@ -310,12 +314,17 @@ app.post('/api/bookings', authenticateUser, async (req, res) => {
         console.error('Missing fields in booking');
         return res.status(400).json({ message: 'All fields required' });
     }
+    const timePattern = /^\d{2}:\d{2}-\d{2}:\d{2}$/;
+    if (!timePattern.test(time_interval)) {
+        console.error('Invalid time interval format:', time_interval);
+        return res.status(400).json({ message: 'Invalid time interval format (use HH:MM-HH:MM)' });
+    }
     const bookingDate = new Date(date);
     const today = new Date();
-    today.setHours(0, 0, 0);
-    if (bookingDate < today) {
-        console.error('Booking in the past:', date);
-        return res.status(400).json({ message: 'Cannot book in the past' });
+    today.setHours(0, 0, 0, 0);
+    if (isNaN(bookingDate) || bookingDate < today) {
+        console.error('Invalid or past date:', date);
+        return res.status(400).json({ message: 'Invalid date or cannot book in the past' });
     }
     try {
         const [existingBookings] = await pool.query(
@@ -334,7 +343,7 @@ app.post('/api/bookings', authenticateUser, async (req, res) => {
         res.status(201).json({ message: 'Booking created successfully', bookingId: result.insertId });
     } catch (error) {
         console.error('Error creating booking:', error.message);
-        if (error.code === 'ER_DUP_EENTRY') {
+        if (error.code === 'ER_DUP_ENTRY') {
             return res.status(400).json({ message: 'Venue already booked for this time slot' });
         }
         res.status(500).json({ message: 'Internal server error' });
@@ -342,7 +351,7 @@ app.post('/api/bookings', authenticateUser, async (req, res) => {
 });
 
 // Update booking
-app.put('/api/bookings/:id', authenticateUser, async (req, res)) => {
+app.put('/api/bookings/:id', authenticateUser, async (req, res) => {
     console.log('Booking update request:', req.params.id, req.body);
     const bookingId = req.params.id;
     const { venue_id, date, time_interval } = req.body;
@@ -351,12 +360,17 @@ app.put('/api/bookings/:id', authenticateUser, async (req, res)) => {
         console.error('Missing fields in update request');
         return res.status(400).json({ message: 'All fields required' });
     }
+    const timePattern = /^\d{2}:\d{2}-\d{2}:\d{2}$/;
+    if (!timePattern.test(time_interval)) {
+        console.error('Invalid time interval format:', time_interval);
+        return res.status(400).json({ message: 'Invalid time interval format (use HH:MM-HH:MM)' });
+    }
     const bookingDate = new Date(date);
     const today = new Date();
-    today.setHours(0, 0,0);
-    if (bookingDate < today) {
-        console.error('Update to past date:', date);
-        return res.status(400).json({ message: 'Cannot book in the past' });
+    today.setHours(0, 0, 0, 0);
+    if (isNaN(bookingDate) || bookingDate < today) {
+        console.error('Invalid or past date:', date);
+        return res.status(400).json({ message: 'Invalid date or cannot book in the past' });
     }
     try {
         const [bookings] = await pool.query(
@@ -383,7 +397,7 @@ app.put('/api/bookings/:id', authenticateUser, async (req, res)) => {
         res.json({ message: 'Booking updated successfully' });
     } catch (error) {
         console.error('Error updating booking:', error.message);
-        if (error.code === 'ER_DUP_EENTRY') {
+        if (error.code === 'ER_DUP_ENTRY') {
             return res.status(400).json({ message: 'Venue already booked for this time slot' });
         }
         res.status(500).json({ message: 'Internal server error' });
@@ -431,7 +445,7 @@ app.get('/api/bookings/all', authenticateUser, requireAdmin, async (req, res) =>
     console.log('All bookings request received');
     try {
         const [bookings] = await pool.query(
-            'SELECT b.*, v.name as venue_name, l.name as lecturer_name, l.title FROM bookings b JOIN v ON b.venue_id = v.id JOIN lecturers l ON b.lecturer_id = l.id ORDER BY b.date DESC'
+            'SELECT b.*, v.name as venue_name, l.name as lecturer_name, l.title FROM bookings b JOIN venues v ON b.venue_id = v.id JOIN lecturers l ON b.lecturer_id = l.id ORDER BY b.date DESC'
         );
         bookings.forEach((booking) => {
             booking.lecturer_name = `${booking.title} ${booking.lecturer_name}`;

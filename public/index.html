@@ -15,11 +15,11 @@
             <form id="loginFormElement" onsubmit="event.preventDefault(); login();">
                 <div class="form-group">
                     <label for="loginId">Lecturer ID</label>
-                    <input type="text" id="loginId" required placeholder="e.g., LEC001">
+                    <input type="text" id="loginId" required placeholder="e.g., LEC001" aria-label="Lecturer ID">
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" required>
+                    <input type="password" id="loginPassword" required aria-label="Password">
                 </div>
                 <div class="form-group">
                     <label><input type="checkbox" id="rememberMe"> Remember Me</label>
@@ -30,12 +30,12 @@
             <div id="loginError" class="error"></div>
         </div>
         <!-- Registration Form -->
-        <div id="registerForm" style="display: none;">
+        <div id="registerForm">
             <h2>Register</h2>
             <form id="registerFormElement" onsubmit="event.preventDefault(); register();">
                 <div class="form-group">
                     <label for="regTitle">Title</label>
-                    <select id="regTitle" required>
+                    <select id="regTitle" required aria-label="Title">
                         <option value="">Select Title</option>
                         <option value="Mr.">Mr.</option>
                         <option value="Ms.">Ms.</option>
@@ -45,28 +45,28 @@
                 </div>
                 <div class="form-group">
                     <label for="regName">Name</label>
-                    <input type="text" id="regName" required placeholder="e.g., John Doe">
+                    <input type="text" id="regName" required placeholder="e.g., John Doe" aria-label="Name">
                 </div>
                 <div class="form-group">
                     <label for="idnumber">Lecturer ID</label>
-                    <input type="text" id="idnumber" required placeholder="e.g., LEC001">
+                    <input type="text" id="idnumber" required placeholder="e.g., LEC001" aria-label="Lecturer ID">
                 </div>
                 <div class="form-group">
                     <label for="regEmail">Email</label>
-                    <input type="email" id="regEmail" required placeholder="e.g., john.doe@must.edu">
+                    <input type="email" id="regEmail" required placeholder="e.g., john.doe@must.edu" aria-label="Email">
                 </div>
                 <div class="form-group">
                     <label for="regPhone">Phone Number</label>
-                    <input type="tel" id="regPhone" required pattern="[0-9]{10}" placeholder="e.g., 0712345678">
+                    <input type="tel" id="regPhone" required pattern="[0-9]{10}" placeholder="e.g., 0712345678" aria-label="Phone Number">
                     <small>Enter a 10-digit phone number.</small>
                 </div>
                 <div class="form-group">
                     <label for="regDepartment">Department</label>
-                    <input type="text" id="regDepartment" required placeholder="e.g., Computer Science">
+                    <input type="text" id="regDepartment" required placeholder="e.g., Computer Science" aria-label="Department">
                 </div>
                 <div class="form-group">
                     <label for="regPassword">Password</label>
-                    <input type="password" id="regPassword" required>
+                    <input type="password" id="regPassword" required aria-label="Password">
                     <small>Password must be at least 8 characters, with uppercase, lowercase, number, and special character.</small>
                 </div>
                 <button type="submit" id="registerButton">Register</button>
@@ -76,13 +76,13 @@
             <div id="regSuccess" class="success"></div>
         </div>
         <!-- Dashboard -->
-        <div id="dashboard" style="display: none;">
+        <div id="dashboard">
             <h2>Dashboard</h2>
             <div id="welcomeMessage"></div>
             <h3>Your Bookings</h3>
             <div class="form-group">
                 <label for="bookingFilter">Filter Bookings</label>
-                <select id="bookingFilter" onchange="loadDashboard()">
+                <select id="bookingFilter" onchange="loadDashboard()" aria-label="Filter Bookings">
                     <option value="all">All Bookings</option>
                     <option value="upcoming">Upcoming</option>
                     <option value="past">Past</option>
@@ -91,33 +91,33 @@
             <table id="bookingTable">
                 <thead>
                     <tr>
-                        <th onclick="sortBookings('venue_name')">Venue</th>
-                        <th onclick="sortBookings('block')">Block</th>
-                        <th onclick="sortBookings('date')">Date</th>
-                        <th onclick="sortBookings('time_interval')">Time</th>
-                        <th>Actions</th>
+                        <th scope="col" onclick="sortBookings('venue_name')">Venue</th>
+                        <th scope="col" onclick="sortBookings('block')">Block</th>
+                        <th scope="col" onclick="sortBookings('date')">Date</th>
+                        <th scope="col" onclick="sortBookings('time_interval')">Time</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="bookingList"></tbody>
             </table>
             <button onclick="showBooking()">Book a Venue</button>
-            <button onclick="showAdminPanel()" id="adminButton" style="display: none;">Admin Panel</button>
+            <button onclick="showAdminPanel()" id="adminButton">Admin Panel</button>
             <button onclick="logout()">Logout</button>
         </div>
         <!-- Admin Panel -->
-        <div id="adminPanel" style="display: none;">
+        <div id="adminPanel">
             <h2>Admin Panel</h2>
             <h3>Lecturers</h3>
             <table id="lecturerTable">
                 <thead>
                     <tr>
-                        <th>Lecturer ID</th>
-                        <th>Title</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Department</th>
-                        <th>Registered</th>
+                        <th scope="col">Lecturer ID</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Department</th>
+                        <th scope="col">Registered</th>
                     </tr>
                 </thead>
                 <tbody id="lecturerList"></tbody>
@@ -126,10 +126,10 @@
             <table id="allBookingsTable">
                 <thead>
                     <tr>
-                        <th>Venue</th>
-                        <th>Lecturer</th>
-                        <th>Date</th>
-                        <th>Time</th>
+                        <th scope="col">Venue</th>
+                        <th scope="col">Lecturer</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
                     </tr>
                 </thead>
                 <tbody id="allBookingsList"></tbody>
@@ -138,11 +138,11 @@
             <button onclick="logout()">Logout</button>
         </div>
         <!-- Booking Form -->
-        <div id="bookingForm" style="display: none;">
+        <div id="bookingForm">
             <h2>Book a Venue</h2>
             <div class="form-group">
                 <label for="block">Block</label>
-                <select id="block" onchange="loadVenues()">
+                <select id="block" onchange="loadVenues()" aria-label="Block">
                     <option value="">Select Block</option>
                     <option value="A">Block A (101-201)</option>
                     <option value="B">Block B (10-101)</option>
@@ -153,17 +153,17 @@
             </div>
             <div class="form-group">
                 <label for="venue">Venue</label>
-                <select id="venue">
+                <select id="venue" aria-label="Venue">
                     <option value="">Select Venue</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="date">Date</label>
-                <input type="date" id="date" required>
+                <input type="date" id="date" required aria-label="Date" min="">
             </div>
-            Dibert class="form-group">
+            <div class="form-group">
                 <label for="timeInterval">Time Interval</label>
-                <select id="timeInterval" required>
+                <select id="timeInterval" required aria-label="Time Interval">
                     <option value="">Select Time Interval</option>
                     <option value="08:00-10:00">08:00-10:00</option>
                     <option value="10:00-12:00">10:00-12:00</option>
@@ -179,12 +179,12 @@
             <div id="bookingSuccess" class="success"></div>
         </div>
         <!-- Edit Booking Form -->
-        <div id="editBookingForm" style="display: none;">
+        <div id="editBookingForm">
             <h2>Edit Booking</h2>
             <input type="hidden" id="editBookingId">
             <div class="form-group">
                 <label for="editBlock">Block</label>
-                <select id="editBlock" onchange="loadEditVenues()">
+                <select id="editBlock" onchange="loadEditVenues()" aria-label="Block">
                     <option value="">Select Block</option>
                     <option value="A">Block A (101-201)</option>
                     <option value="B">Block B (10-101)</option>
@@ -195,17 +195,17 @@
             </div>
             <div class="form-group">
                 <label for="editVenue">Venue</label>
-                <select id="editVenue">
+                <select id="editVenue" aria-label="Venue">
                     <option value="">Select Venue</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="editDate">Date</label>
-                <input type="date" id="editDate" required>
+                <input type="date" id="editDate" required aria-label="Date" min="">
             </div>
             <div class="form-group">
                 <label for="editTimeInterval">Time Interval</label>
-                <select id="editTimeInterval" required>
+                <select id="editTimeInterval" required aria-label="Time Interval">
                     <option value="">Select Time Interval</option>
                     <option value="08:00-10:00">08:00-10:00</option>
                     <option value="10:00-12:00">10:00-12:00</option>
